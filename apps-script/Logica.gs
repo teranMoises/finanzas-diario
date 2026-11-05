@@ -697,7 +697,7 @@ function manejarPeticion(cuerpo, almacen, ahora) {
     }
     case 'ultimos': {
       var n = Math.max(1, Math.min(200, parseInt(p.n, 10) || 30));
-      var ult = almacen.leerFilas().slice(-n).sort(function (a, b) {
+      var ult = almacen.leerFilas().filter(function (f) { return f.id; }).slice(-n).sort(function (a, b) {
         return String(a.fecha) < String(b.fecha) ? 1 : String(a.fecha) > String(b.fecha) ? -1 : 0;
       });
       return { respuesta: { ok: true, filas: ult }, cambio: false };
