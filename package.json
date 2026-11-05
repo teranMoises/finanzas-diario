@@ -5,7 +5,7 @@
   "description": "Anotador de ingresos y gastos (PWA + Google Apps Script). Sin dependencias.",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/",
+    "test": "node --test",
     "mock": "node tools/mock-server.js"
   }
 }
