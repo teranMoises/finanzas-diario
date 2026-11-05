@@ -1,0 +1,4 @@
+node_modules/
+tools/salida/
+*.log
+.DS_Store

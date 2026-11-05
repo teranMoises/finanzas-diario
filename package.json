@@ -1,0 +1,11 @@
+{
+  "name": "finanzas-diario",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Anotador de ingresos y gastos (PWA + Google Apps Script). Sin dependencias.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "mock": "node tools/mock-server.js"
+  }
+}
