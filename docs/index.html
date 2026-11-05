@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es-VE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1f1d" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Anota ingresos y gastos en segundos, con o sin internet.">
+  <meta name="referrer" content="no-referrer">
+  <title>Finanzas Diario</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="barra">
+    <span class="estado-red" id="estadoRed" title="Conexión"></span>
+    <span class="tasa" id="tasa">Tasa: —</span>
+    <button class="pendientes" id="pendientes" type="button" hidden>0 pendientes</button>
+  </header>
+
+  <div class="aviso" id="avisoVersion" hidden>
+    Hay una versión nueva. <button type="button" id="btnActualizar">Actualizar</button>
+  </div>
+  <div class="aviso aviso-error" id="avisoConfig" hidden></div>
+
+  <main>
+    <!-- ================= Anotar ================= -->
+    <section class="vista" id="vistaAnotar" data-vista="anotar">
+      <form id="formulario" autocomplete="off" novalidate>
+        <div class="tipos" role="radiogroup" aria-label="Tipo">
+          <button type="button" class="tipo" data-tipo="Gasto" role="radio">Gasto</button>
+          <button type="button" class="tipo" data-tipo="Ingreso" role="radio">Ingreso</button>
+          <button type="button" class="tipo" data-tipo="Traspaso" role="radio">Traspaso</button>
+        </div>
+
+        <div class="fila-monto">
+          <input id="monto" class="monto" inputmode="decimal" enterkeyhint="next"
+                 placeholder="0,00" aria-label="Monto" autocomplete="off">
+          <button type="button" id="moneda" class="moneda" aria-label="Moneda">Bs</button>
+        </div>
+        <div class="equivalente" id="equivalente">&nbsp;</div>
+
+        <div class="campo-desc">
+          <input id="descripcion" class="texto" placeholder="Descripción" enterkeyhint="done"
+                 aria-label="Descripción" autocomplete="off" maxlength="200">
+          <ul class="sugerencias" id="sugerencias" role="listbox" hidden></ul>
+        </div>
+
+        <div class="grupo">
+          <div class="etiqueta" id="etqCuenta">Cuenta</div>
+          <div class="chips" id="chipsCuenta" role="radiogroup" aria-labelledby="etqCuenta"></div>
+        </div>
+        <div class="grupo" id="grupoDestino" hidden>
+          <div class="etiqueta" id="etqDestino">Hacia</div>
+          <div class="chips" id="chipsDestino" role="radiogroup" aria-labelledby="etqDestino"></div>
+        </div>
+        <div class="grupo">
+          <div class="etiqueta" id="etqCategoria">Categoría</div>
+          <div class="chips chips-desliza" id="chipsCategoria" role="radiogroup" aria-labelledby="etqCategoria"></div>
+        </div>
+        <div class="grupo">
+          <div class="etiqueta" id="etqMedio">Medio</div>
+          <div class="chips chips-desliza chips-chicos" id="chipsMedio" role="radiogroup" aria-labelledby="etqMedio"></div>
+        </div>
+
+        <details class="mas" id="mas">
+          <summary><span id="resumenMas">Ahora · sin referencia</span></summary>
+          <label>Fecha y hora
+            <input type="datetime-local" id="fecha" class="texto">
+          </label>
+          <label>Referencia
+            <input id="referencia" class="texto" inputmode="numeric" maxlength="60" placeholder="Opcional">
+          </label>
+        </details>
+
+        <button type="submit" class="guardar" id="guardar">Guardar</button>
+      </form>
+    </section>
+
+    <!-- ================= Últimos ================= -->
+    <section class="vista" id="vistaUltimos" data-vista="ultimos" hidden>
+      <div class="cabecera-lista">
+        <h2>Últimos</h2>
+        <button type="button" class="boton-sec" id="btnRecargarUltimos">Recargar</button>
+      </div>
+      <p class="nota" id="notaUltimos"></p>
+      <ul class="lista" id="lista"></ul>
+    </section>
+
+    <!-- ================= Ajustes ================= -->
+    <section class="vista" id="vistaAjustes" data-vista="ajustes" hidden>
+      <h2>Ajustes</h2>
+      <form id="formAjustes" autocomplete="off">
+        <label>URL del Web App
+          <input id="ajUrl" class="texto" type="url" placeholder="https://script.google.com/macros/s/…/exec" spellcheck="false">
+        </label>
+        <label>Token
+          <span class="con-boton">
+            <input id="ajToken" class="texto" type="password" spellcheck="false" autocomplete="off">
+            <button type="button" class="boton-sec" id="btnVerToken" aria-label="Mostrar token">Ver</button>
+          </span>
+        </label>
+        <label>Nombre de este dispositivo
+          <input id="ajDispositivo" class="texto" maxlength="60">
+        </label>
+        <button type="submit" class="boton">Guardar ajustes</button>
+      </form>
+      <div class="botones">
+        <button type="button" class="boton-sec" id="btnProbar">Probar conexión</button>
+        <button type="button" class="boton-sec" id="btnSincronizar">Sincronizar ahora</button>
+        <button type="button" class="boton-sec" id="btnBuscarVersion">Buscar actualización</button>
+      </div>
+      <p class="nota" id="resultadoAjustes" role="status"></p>
+      <dl class="info">
+        <dt>Pendientes</dt><dd id="infoPendientes">0</dd>
+        <dt>Última sincronización</dt><dd id="infoSync">—</dd>
+        <dt>Configuración del servidor</dt><dd id="infoConfig">—</dd>
+        <dt>Versión de la app</dt><dd id="infoVersion">—</dd>
+      </dl>
+      <p class="nota">Puedes configurar este teléfono abriendo el enlace que aparece en la hoja Config (enlace_telefono).</p>
+    </section>
+  </main>
+
+  <nav class="navegacion">
+    <button type="button" data-ir="anotar" class="activo">Anotar</button>
+    <button type="button" data-ir="ultimos">Últimos</button>
+    <button type="button" data-ir="ajustes">Ajustes</button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- ================= Editar ================= -->
+  <dialog id="dlgEditar">
+    <form method="dialog" id="formEditar" autocomplete="off">
+      <h3>Editar</h3>
+      <p class="nota" id="edEstado"></p>
+      <label>Tipo
+        <select id="edTipo"><option>Gasto</option><option>Ingreso</option><option>Traspaso</option></select>
+      </label>
+      <div class="dos-col">
+        <label>Monto <input id="edMonto" class="texto" inputmode="decimal"></label>
+        <label>Moneda <select id="edMoneda"></select></label>
+      </div>
+      <label>Descripción <input id="edDescripcion" class="texto" maxlength="200"></label>
+      <label>Categoría <select id="edCategoria"></select></label>
+      <label>Cuenta <select id="edCuenta"></select></label>
+      <label id="edGrupoDestino">Hacia <select id="edDestino"></select></label>
+      <label>Medio <select id="edMedio"></select></label>
+      <label>Fecha y hora <input type="datetime-local" id="edFecha" class="texto"></label>
+      <label>Referencia <input id="edReferencia" class="texto" maxlength="60"></label>
+      <div class="botones">
+        <button type="button" class="boton-peligro" id="edAnular">Anular</button>
+        <span class="espacio"></span>
+        <button type="button" class="boton-sec" id="edCancelar">Cancelar</button>
+        <button type="submit" class="boton" id="edGuardar" value="guardar">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
